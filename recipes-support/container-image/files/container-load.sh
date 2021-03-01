@@ -47,7 +47,7 @@ tag_images() {
         die "${MANIFEST} is not installed on the system"
 
     local name version image
-    while read -r name version image _; do
+    while read -r name version shasum image _; do
         docker tag "localhost/${image}:${version}" "localhost/${image}:latest" ||
             die "Error tagging localhost/${image}:${version}"
 

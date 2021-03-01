@@ -35,10 +35,10 @@ do_pull_image() {
     # variable.
     # - to call /usr/bin/newgidmap and /usr/bin/newuidmap binaries which
     # set uid and gid mapping of a user namespace.
-    local name version
-    while read -r name version _; do
-        if ! PATH=/usr/bin:${PATH} podman pull "${name}:${version}"; then
-            bbfatal "Error pulling ${name}:${version}"
+    local name version shasum
+    while read -r name version shasum _; do
+        if ! PATH=/usr/bin:${PATH} podman pull "${name}@${shasum}"; then
+            bbfatal "Error pulling ${name}@${shasum}"
         fi
     done < "${WORKDIR}/${MANIFEST}"
 }
@@ -46,28 +46,28 @@ do_pull_image() {
 # Tag the container images with the tag specified in the manifest file.
 do_tag_image() {
     [ -f "${WORKDIR}/${MANIFEST}" ] || bbfatal "${MANIFEST} does not exist"
-    local name version tag
-    while read -r name version tag _; do
-        if ! PATH=/usr/bin:${PATH} podman tag "${name}:${version}" "${tag}:${version}"; then
-            bbfatal "Error tagging ${name}:${version}"
+    local name version shasum tag
+    while read -r name version shasum tag _; do
+        if ! PATH=/usr/bin:${PATH} podman tag "${name}@${shasum}" "${tag}:${version}"; then
+            bbfatal "Error tagging ${tag}:${version}"
         fi
     done < "${WORKDIR}/${MANIFEST}"
 }
 
 # Save the container images.
 do_save_image() {
-    local name version archive tag
+    local name version tag archive
     mkdir -p "${STORE_DIR}"
-    while read -r name version tag _; do
+    while read -r name version shasum tag _; do
         archive="${tag}-${version}.tar"
         if [ -f "${WORKDIR}/${archive}" ]; then
             bbnote "Removing the archive ${STORE_DIR}/${archive}"
             rm "${WORKDIR}/${archive}"
         fi
 
-        if ! PATH=/usr/bin:${PATH} podman save --storage-driver overlay "${tag}:${version}" \
+        if ! PATH=/usr/bin:${PATH} podman save --storage-driver vfs "${tag}:${version}" \
             -o "${WORKDIR}/${archive}"; then
-            bbfatal "Error saving ${tag} container"
+            bbfatal "Error saving ${tag}:${version} container"
         fi
     done < "${WORKDIR}/${MANIFEST}"
 }
@@ -78,7 +78,7 @@ do_install() {
     install -d "${D}${datadir}/container-images"
     install -m 0400 "${WORKDIR}/${MANIFEST}" "${D}${datadir}/container-images/"
     install -m 0400 "${WORKDIR}/docker-compose.yml" "${D}${datadir}/container-images/"
-    while read -r name version tag _; do
+    while read -r name version shasum tag _; do
         archive="${tag}-${version}.tar"
         [ -f "${WORKDIR}/${archive}" ] || bbfatal "${archive} does not exist"
 
