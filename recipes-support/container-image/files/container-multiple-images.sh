@@ -89,7 +89,7 @@ down() {
 
 case "$1" in
 start)
-    up
+    start
 #    info "Starting containers from ${MANIFEST}"
 #    while read -r name version tag _; do
 #        start_container "${name}:${version}" "${tag}"|| die "Error starting the container ${name}"
@@ -97,7 +97,7 @@ start)
 #    done < "${MANIFEST}"
     ;;
 stop)
-    down
+    stop
 #    while read -r name version tag _; do
 #        stop_container "${tag}"
 #        remove_container "${tag}"

@@ -23,21 +23,22 @@ die() {
 # docker local registry.
 # $1: the image name
 is_image_loaded() {
-    local image image_name image_version output
+    local image version image_name image_version output
     image="${1}"
-    image_name="localhost/$(basename "${image}".tar | cut -d- -f1)"
-    image_version="$(basename "${image}".tar | cut -d- -f2)"
+    version="${2}"
+    image_name="localhost/${image}"
     output=$(docker images --format='{{.Repository}} {{.Tag}}' "${image_name}")
-    test "${output}" = "${image_name} ${image_version}"
+    grep -q "${image_name} ${version}" <<< "${output}"
 }
 
 # Load a "docker save" archive into the docker store.
 load_image() {
     local image="${1}"
-    info "Loading the ${image} into the docker store..."
+    local version="${2}"
+    info "Loading ${IMAGE_DIR}/${image}-${version}.tar into the docker store..."
 
-    if ! docker load -i "${image}"; then
-        die "Error loading the ${image} into the docker store"
+    if ! docker load -i "${IMAGE_DIR}/${image}-${version}.tar"; then
+        die "Error loading ${IMAGE_DIR}/${image}-${version}.tar into the docker store"
     fi
 }
 
@@ -60,10 +61,11 @@ tag_images() {
 
 case "${1}" in
 start)
-    for img in "${IMAGE_DIR}"/*.tar; do
-        is_image_loaded "${img}" || load_image "${img}"
-        info "Succes loading ${img}..."
-    done
+    while read -r name version shasum image _; do
+        is_image_loaded "${image}" "${version}" || load_image "${image}" "${version}"
+        info "Succes loading ${image}:${version}..."
+    done < ${MANIFEST}
+
     info "Success loading all the images..."
     tag_images
     info "Success tagging all the images to the latest tag..."
