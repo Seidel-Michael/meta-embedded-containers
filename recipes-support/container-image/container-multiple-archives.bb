@@ -65,9 +65,18 @@ do_save_image() {
             rm "${WORKDIR}/${archive}"
         fi
 
+        if [ -f "${WORKDIR}/${archive}.gz" ]; then
+            bbnote "Removing the compressed archive ${STORE_DIR}/${archive}"
+            rm "${WORKDIR}/${archive}.gz"
+        fi
+
         if ! PATH=/usr/bin:${PATH} podman save --storage-driver vfs "${tag}:${version}" \
             -o "${WORKDIR}/${archive}"; then
             bbfatal "Error saving ${tag}:${version} container"
+        fi
+
+        if ! PATH=/usr/bin:${PATH} gzip "${WORKDIR}/${archive}"; then
+            bbfatal "Error compressing ${tag}:${version} container"
         fi
     done < "${WORKDIR}/${MANIFEST}"
 }
@@ -79,7 +88,7 @@ do_install() {
     install -m 0400 "${WORKDIR}/${MANIFEST}" "${D}${datadir}/container-images/"
     install -m 0400 "${WORKDIR}/docker-compose.yml" "${D}${datadir}/container-images/"
     while read -r name version shasum tag _; do
-        archive="${tag}-${version}.tar"
+        archive="${tag}-${version}.tar.gz"
         [ -f "${WORKDIR}/${archive}" ] || bbfatal "${archive} does not exist"
 
         install -m 0400 "${WORKDIR}/${archive}" "${D}${datadir}/container-images/"

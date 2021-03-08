@@ -37,8 +37,16 @@ load_image() {
     local version="${2}"
     info "Loading ${IMAGE_DIR}/${image}-${version}.tar into the docker store..."
 
-    if ! docker load -i "${IMAGE_DIR}/${image}-${version}.tar"; then
-        die "Error loading ${IMAGE_DIR}/${image}-${version}.tar into the docker store"
+    if ! gzip -dc "${IMAGE_DIR}/${image}-${version}.tar.gz" > "/tmp/${image}-${version}.tar"; then
+        die "Error extracting ${IMAGE_DIR}/${image}-${version}.tar.gz"
+    fi
+
+    if ! docker load -i "/tmp/${image}-${version}.tar"; then
+        die "Error loading /tmp/${image}-${version}.tar into the docker store"
+    fi
+
+    if ! rm -f "/tmp/${image}-${version}.tar"; then
+        die "Error removing /tmp/${image}-${version}.tar"
     fi
 }
 
