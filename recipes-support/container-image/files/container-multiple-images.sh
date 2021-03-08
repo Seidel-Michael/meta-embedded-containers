@@ -66,7 +66,7 @@ stop() {
 # docker-compose.yml file.
 up() {
     info "Bringing up containers ..."
-    if ! docker-compose -f "${CONF_FILE}" up -d --force-recreate; then
+    if ! docker-compose -f "${CONF_FILE}" up -d; then
         die "Error bringing up Airtime containers ..."
     else
         info "Airtime containers started"
@@ -77,8 +77,7 @@ up() {
 # docker-compose.yml file.
 down() {
     info "Tearing down containers : ... "
-    if ! docker-compose -f ${CONF_FILE} down -v --remove-orphans; then
-        docker system prune --force
+    if ! docker-compose -f ${CONF_FILE} down -v; then
         die "Error tearing down Airtime containers, remove unused data ..."
     else
         info "Airtime containers teared down"
@@ -89,7 +88,7 @@ down() {
 
 case "$1" in
 start)
-    start
+    up
 #    info "Starting containers from ${MANIFEST}"
 #    while read -r name version tag _; do
 #        start_container "${name}:${version}" "${tag}"|| die "Error starting the container ${name}"
@@ -97,7 +96,7 @@ start)
 #    done < "${MANIFEST}"
     ;;
 stop)
-    stop
+    down
 #    while read -r name version tag _; do
 #        stop_container "${tag}"
 #        remove_container "${tag}"
