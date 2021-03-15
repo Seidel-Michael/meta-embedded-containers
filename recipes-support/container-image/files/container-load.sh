@@ -31,6 +31,14 @@ is_image_loaded() {
     grep -q "${image_name} ${version}" <<< "${output}"
 }
 
+remove_old_images() {
+    local image version image_name image_version output
+    image="${1}"
+    version="${2}"
+    image_name="localhost/${image}"
+    docker rmi $(docker images --format='{{.Repository}}:{{.Tag}}' "${image_name}" | grep -v "${image_name}:${version}")
+}
+
 # Load a "docker save" archive into the docker store.
 load_image() {
     local image="${1}"
@@ -70,13 +78,14 @@ tag_images() {
 case "${1}" in
 start)
     while read -r name version shasum image _; do
+        remove_old_images "${image}" "${version}"
         is_image_loaded "${image}" "${version}" || load_image "${image}" "${version}"
         info "Succes loading ${image}:${version}..."
     done < ${MANIFEST}
 
     info "Success loading all the images..."
-    tag_images
-    info "Success tagging all the images to the latest tag..."
+    #tag_images
+    #info "Success tagging all the images to the latest tag..."
     ;;
 *)
     die "Usage: ${0} start"

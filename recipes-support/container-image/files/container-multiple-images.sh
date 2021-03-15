@@ -70,6 +70,8 @@ up() {
         die "Error bringing up Airtime containers ..."
     else
         info "Airtime containers started"
+
+        info "Prune docker"
     fi
 }
 

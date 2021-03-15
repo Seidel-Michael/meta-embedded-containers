@@ -1,7 +1,7 @@
 [Unit]
 Description=Load and start multiple container images at boot with docker-compose
-After=docker.service mount-noauto.service
-Requires=docker.service docker.socket mount-noauto.service
+After=docker.service
+Requires=docker.service docker.socket
 
 [Service]
 Type=simple

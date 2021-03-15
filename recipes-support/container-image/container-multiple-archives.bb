@@ -101,7 +101,7 @@ do_install() {
     install -m 0755 "${WORKDIR}/container-load.sh" "${D}${bindir}/container-load"
 }
 
-# The ordre should be:
+# The order should be:
 # 1. do_fetch
 # 2. do_pull_image
 # 3. do_tag_image
