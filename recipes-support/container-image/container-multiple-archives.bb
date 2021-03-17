@@ -15,10 +15,6 @@ SRC_URI = "file://images.manifest \
 MANIFEST = "images.manifest"
 STORE_DIR = "${WORKDIR}/container-store"
 
-do_pull_image[nostamp] = "1"
-do_tag_image[nostamp] = "1"
-do_save_image[nostamp] = "1"
-
 RDEPENDS_${PN} = "docker python3-docker-compose bash"
 REQUIRED_DISTRO_FEATURES= "systemd"
 
