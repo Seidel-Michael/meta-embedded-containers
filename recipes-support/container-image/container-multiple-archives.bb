@@ -22,6 +22,8 @@ inherit systemd
 SYSTEMD_SERVICE_${PN} = "container-multiple-images.service"
 SYSTEMD_AUTO_ENABLE_${PN} = "enable"
 
+INSANE_SKIP_${PN} += "already-stripped arch"
+
 # Pull the container images from the manifest file.
 do_pull_image() {
 
@@ -79,15 +81,26 @@ do_save_image() {
 
 # Install the manifest inside the root filesystem.
 do_install() {
-    local name version archive tag
+    local name version archive tag extract
     install -d "${D}${datadir}/container-images"
     install -m 0400 "${WORKDIR}/${MANIFEST}" "${D}${datadir}/container-images/"
     install -m 0400 "${WORKDIR}/docker-compose.yml" "${D}${datadir}/container-images/"
-    while read -r name version shasum tag _; do
+    while read -r name version shasum tag extract _; do
         archive="${tag}-${version}.tar.gz"
         [ -f "${WORKDIR}/${archive}" ] || bbfatal "${archive} does not exist"
 
-        install -m 0400 "${WORKDIR}/${archive}" "${D}${datadir}/container-images/"
+        if [ "$extract" != "1" ]; then
+            install -m 0400 "${WORKDIR}/${archive}" "${D}${datadir}/container-images/"
+        else
+            rm -rf ${WORKDIR}/tmpextract
+            mkdir ${WORKDIR}/tmpextract
+            rm -rf ${WORKDIR}/${tag}
+            mkdir ${WORKDIR}/${tag}
+            tar -C ${WORKDIR}/tmpextract --wildcards -xvf ${WORKDIR}/${archive} *.tar
+            for f in ${WORKDIR}/tmpextract/*.tar; do tar xf "$f" -C ${WORKDIR}/${tag}; done
+            cp -R "${WORKDIR}/${tag}" "${D}${datadir}/container-images/"
+            sed -n '/cmtk-frontend/!p' ${D}${datadir}/container-images/${MANIFEST} > ${D}${datadir}/container-images/${MANIFEST}
+        fi
     done < "${WORKDIR}/${MANIFEST}"
 
     install -d "${D}${systemd_unitdir}/system"
