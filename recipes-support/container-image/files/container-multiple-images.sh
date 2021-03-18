@@ -90,22 +90,18 @@ down() {
 
 case "$1" in
 start)
-    up
-#    info "Starting containers from ${MANIFEST}"
-#    while read -r name version tag _; do
-#        start_container "${name}:${version}" "${tag}"|| die "Error starting the container ${name}"
-#        info "Success starting the container ${name}:${version}"
-#    done < "${MANIFEST}"
+    start
     ;;
 stop)
+    stop
+    ;;
+up)
+    up
+    ;;
+down)
     down
-#    while read -r name version tag _; do
-#        stop_container "${tag}"
-#        remove_container "${tag}"
-#        info "Stopping the container ${tag}"
-#    done < "${MANIFEST}"
     ;;
 *)
-    die "Usage: $0 {start|stop}"
+    die "Usage: $0 {start|stop|up|down}"
     ;;
 esac
