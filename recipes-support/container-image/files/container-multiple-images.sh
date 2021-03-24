@@ -90,7 +90,7 @@ down() {
 
 case "$1" in
 start)
-    start
+    up
     ;;
 stop)
     stop
