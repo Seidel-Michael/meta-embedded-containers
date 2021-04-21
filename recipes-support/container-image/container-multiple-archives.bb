@@ -91,6 +91,15 @@ do_install() {
 
         if [ "$extract" != "1" ]; then
             install -m 0400 "${WORKDIR}/${archive}" "${D}${datadir}/container-images/"
+            rm -rf ${WORKDIR}/tmpextract
+            mkdir ${WORKDIR}/tmpextract
+            rm -rf ${WORKDIR}/${tag}
+            mkdir ${WORKDIR}/${tag}
+            tar -C ${WORKDIR}/tmpextract --wildcards -xvf ${WORKDIR}/${archive} *.tar
+            for f in ${WORKDIR}/tmpextract/*.tar; do tar xf "$f" -C ${WORKDIR}/${tag}; done
+            mkdir -p ${WORKDIR}/${tag}/licenses
+            mkdir -p ${D}/usr/share/licenses
+            cp -rf ${WORKDIR}/${tag}/licenses ${D}/usr/share/licenses/container-${tag}
         else
             rm -rf ${WORKDIR}/tmpextract
             mkdir ${WORKDIR}/tmpextract
@@ -99,7 +108,7 @@ do_install() {
             tar -C ${WORKDIR}/tmpextract --wildcards -xvf ${WORKDIR}/${archive} *.tar
             for f in ${WORKDIR}/tmpextract/*.tar; do tar xf "$f" -C ${WORKDIR}/${tag}; done
             cp -R "${WORKDIR}/${tag}" "${D}${datadir}/container-images/"
-            sed -i -n '/cmtk-frontend/!p' ${D}${datadir}/container-images/${MANIFEST}
+            sed -i -n '/tag/!p' ${D}${datadir}/container-images/${MANIFEST}
         fi
     done < "${WORKDIR}/${MANIFEST}"
 
@@ -124,4 +133,5 @@ FILES_${PN} = "${datadir}/container-images \
                ${system_unitdir}/system/container-multiple-images.service \
                ${bindir}/container-multiple-images \
                ${bindir}/container-load \
+               /usr/share/licenses \
               "
