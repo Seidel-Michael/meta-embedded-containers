@@ -48,7 +48,7 @@ start() {
     if docker-compose -f "${CONF_FILE}" start; then
         info "Starting the containers"
     else
-        die "Error starting Airtime containers ..."
+        die "Error starting containers ..."
     fi
 }
 
@@ -58,7 +58,7 @@ stop() {
     if docker-compose -f ${CONF_FILE} stop; then
         info "Containers stopped"
     else
-        die "Error stopping Airtime containers ..."
+        die "Error stopping containers ..."
     fi
 }
 
@@ -67,9 +67,9 @@ stop() {
 up() {
     info "Bringing up containers ..."
     if ! docker-compose -f "${CONF_FILE}" up -d; then
-        die "Error bringing up Airtime containers ..."
+        die "Error bringing up containers ..."
     else
-        info "Airtime containers started"
+        info "Ccontainers started"
 
         info "Prune docker"
     fi
@@ -80,9 +80,9 @@ up() {
 down() {
     info "Tearing down containers : ... "
     if ! docker-compose -f ${CONF_FILE} down -v; then
-        die "Error tearing down Airtime containers, remove unused data ..."
+        die "Error tearing down containers, remove unused data ..."
     else
-        info "Airtime containers teared down"
+        info "Containers teared down"
     fi
 }
 
