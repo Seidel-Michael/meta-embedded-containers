@@ -108,7 +108,7 @@ do_install() {
             tar -C ${WORKDIR}/tmpextract --wildcards -xvf ${WORKDIR}/${archive} *.tar
             for f in ${WORKDIR}/tmpextract/*.tar; do tar xf "$f" -C ${WORKDIR}/${tag}; done
             cp -R "${WORKDIR}/${tag}" "${D}${datadir}/container-images/"
-            sed -i -n '/tag/!p' ${D}${datadir}/container-images/${MANIFEST}
+            sed -i -n '/'${tag}'/!p' ${D}${datadir}/container-images/${MANIFEST}
         fi
     done < "${WORKDIR}/${MANIFEST}"
 
