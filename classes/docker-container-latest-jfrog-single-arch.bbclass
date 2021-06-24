@@ -7,13 +7,10 @@ python get_latest_version_info() {
     import requests
     from requests.auth import HTTPBasicAuth
     import json
-    from dateutil.parser import parse
     from datetime import datetime
-    import pytz
 
-    tz_lon = pytz.timezone("Europe/London")
     newest_tag = None
-    newest_date = tz_lon.localize(datetime(1900, 1, 1, 0, 0, 0))
+    newest_date = datetime(1900, 1, 1, 0, 0, 0)
 
     requests_session = requests.Session()
 
@@ -50,7 +47,7 @@ python get_latest_version_info() {
             bb.fatal("API Error: Could not get list of tags. " + str(manifestV1Result.status_code) + " " + manifestV1Url) 
 
         # Search for newest Tag
-        date = parse(json.loads(manifestV1Result.json()['history'][0]['v1Compatibility'])['created'])
+        date = datetime.strptime(json.loads(manifestV1Result.json()['history'][0]['v1Compatibility'])['created'].split(".")[0], "%Y-%m-%dT%H:%M:%S")
         bb.note(str(date) + " - " + tag)
         if(date > newest_date):
             newest_date = date
