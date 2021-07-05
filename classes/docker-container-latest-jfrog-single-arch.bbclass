@@ -64,7 +64,7 @@ python get_latest_version_info() {
     d.setVar('SHAHASH', manifestV2Result.headers['Docker-Content-Digest'])
 }
 
-
+do_pull_image[nostamp] = "1"
 do_pull_image[prefuncs] += "get_latest_version_info"
 do_tag_image[prefuncs] += "get_latest_version_info"
 do_save_image[prefuncs] += "get_latest_version_info"

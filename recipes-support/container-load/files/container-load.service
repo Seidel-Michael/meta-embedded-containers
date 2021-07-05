@@ -1,5 +1,5 @@
 [Unit]
-Description=Load multiple container images at boot with
+Description=Load multiple container images at boot
 After=docker.service
 Requires=docker.service docker.socket
 
